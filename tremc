@@ -1498,7 +1498,11 @@ class Interface:
         self.exit_now = True
 
     def action_turtle_mode(self):
-        self.server.toggle_turtle_mode()
+        enabled = self.server.status_cache['alt-speed-enabled']
+        verb = 'Disable' if enabled else 'Enable'
+        question = '{verb} turtle mode?'.format(verb=verb)
+        if self.dialog_yesno(question):
+            self.server.toggle_turtle_mode()
 
     def action_move_queue_down(self):
         self.move_queue('down')
