@@ -1436,7 +1436,7 @@ class Interface:
 
     def recalculate_torrents_per_page(self):
         self.mainview_height = self.height - 2
-        self.torrents_per_page = (self.mainview_height + gconfig.tlist_item_height - 1) // gconfig.tlist_item_height
+        self.torrents_per_page = self.mainview_height // gconfig.tlist_item_height
 
     def run(self):
         self.draw_title_bar()
