@@ -261,6 +261,9 @@ class GConfig:
             'set_labels': [256, ['B'], 'Set labels'],
             'move_queue_down': [513, ['J'], 'Move torrent down in queue'],
             'move_queue_up': [513, ['K'], 'Move torrent up in queue'],
+            'move_queue_bottom': [513, [')'], 'Move torrent to bottom of queue'],
+            'move_queue_top': [513, ['('], 'Move torrent to top of queue'],
+            'set_queue': [513, ['^'], 'Set torrent queue position'],
             'profile_menu': [1, ['e'], 'Profile menu'],
             'save_profile': [1, ['E'], 'Save profile'],
             'search_torrent': [1, ['/'], 'Find torrent'],
@@ -1509,6 +1512,39 @@ class Interface:
 
     def action_move_queue_up(self):
         self.move_queue('up')
+
+    def action_move_queue_bottom(self):
+        self.move_queue('bottom')
+
+    def action_move_queue_top(self):
+        self.move_queue('top')
+
+    def action_set_queue(self):
+        if self.focus < 0:
+            # No torrent selected.
+            return
+        if self.server.get_rpc_version() < 14:
+            # Transmission daemon rpc version too low.
+            # torrent-set queuePosition added in RPC version 14 (2.40).
+            self.dialog_ok('You need Transmission v2.40 or higher to set queue'
+                    ' position.')
+            return
+
+        focused = self.torrents[self.focus]
+        name = focused['name']
+        curr_pos = focused['queuePosition']
+        n = self.dialog_input_text(
+                'Set queue position of "{name}":'.format(name=name),
+                text=str(curr_pos))
+        if n == '':
+            # User pressed Escape (cancelled dialog).
+            return
+        try:
+            n = int(n)
+        except (TypeError, ValueError):
+            self.dialog_ok('Invalid queue position: "{n}"'.format(n=n))
+            return
+        self.move_queue(n)
 
     def action_add_torrent_paused(self):
         self.action_add_torrent(paused=True)
