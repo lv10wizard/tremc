@@ -1878,10 +1878,14 @@ class Interface:
     def action_pause_unpause_all_torrent(self):
         if len(self.torrents) > 0:
             focused_torrent = self.torrents[max(0, self.focus)]
-            if focused_torrent['status'] == Transmission.STATUS_STOPPED:
-                self.server.start_torrents([t['id'] for t in self.torrents])
-            else:
-                self.server.stop_torrents([t['id'] for t in self.torrents])
+            start = focused_torrent['status'] == Transmission.STATUS_STOPPED
+            verb = 'Start' if start else 'Pause'
+            question = '{verb} all torrents?'.format(verb=verb)
+            if self.dialog_yesno(question):
+                if start:
+                    self.server.start_torrents([t['id'] for t in self.torrents])
+                else:
+                    self.server.stop_torrents([t['id'] for t in self.torrents])
 
     def action_verify_torrent(self):
         ids = self.selected_ids()
